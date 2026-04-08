@@ -1,68 +1,71 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using FirstWritingAPI.Data;
+using FirstWritingAPI.Models;
+using FirstWritingAPI.Services.Interfaces;
+
 namespace FirstWritingAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class StudentController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IStudentService _studentService;
 
-        public StudentController(AppDbContext context)
+        public StudentController(IStudentService studentService)
         {
-            _context = context;
+            _studentService = studentService;
         }
+
         [HttpGet]
         public ActionResult<IEnumerable<Student>> GetStudents()
         {
-            return Ok(_context.Students.ToList());
+            var students = _studentService.GetAllStudents();
+            return Ok(students);
         }
+
         [HttpGet("{id}")]
         public ActionResult<Student> GetStudentById(int id)
         {
-            var student = _context.Students.FirstOrDefault(s => s.Id == id);
+            var student = _studentService.GetStudentById(id);
+
             if (student == null)
             {
                 return NotFound();
             }
+
             return Ok(student);
         }
+
         [HttpPost]
         public ActionResult<Student> CreateStudent(Student student)
         {
-            _context.Students.Add(student);
-            _context.SaveChanges();
-            return CreatedAtAction(nameof(GetStudentById), new { id = student.Id }, student);
+            var createdStudent = _studentService.CreateStudent(student);
+            return CreatedAtAction(nameof(GetStudentById), new { id = createdStudent.Id }, createdStudent);
         }
+
         [HttpPut("{id}")]
         public ActionResult UpdateStudentById(int id, Student updatedStudent)
         {
-            var student = _context.Students.FirstOrDefault(s => s.Id == id);
-            if (student == null)
+            var result = _studentService.UpdateStudent(id, updatedStudent);
+
+            if (!result)
             {
                 return NotFound();
             }
-            student.Name = updatedStudent.Name;
-            student.Age = updatedStudent.Age;
-            _context.SaveChanges();
+
             return NoContent();
         }
+
         [HttpDelete("{id}")]
         public ActionResult DeleteStudentById(int id)
         {
-            var student = _context.Students.FirstOrDefault(s => s.Id == id);
-            if (student == null)
+            var result = _studentService.DeleteStudent(id);
+
+            if (!result)
             {
                 return NotFound();
             }
-            _context.Students.Remove(student);
+
             return NoContent();
         }
-    }
-    public class Student
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public int Age { get; set; }
     }
 }

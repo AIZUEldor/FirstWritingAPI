@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using FirstWritingAPI.Controllers;
+using FirstWritingAPI.Models;
 
 namespace FirstWritingAPI.Data
 {

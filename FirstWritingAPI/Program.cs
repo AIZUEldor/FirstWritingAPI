@@ -1,4 +1,8 @@
 using FirstWritingAPI.Data;
+using FirstWritingAPI.Repositories;
+using FirstWritingAPI.Repositories.Interfaces;
+using FirstWritingAPI.Services;
+using FirstWritingAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FirstWritingAPI
@@ -14,14 +18,14 @@ namespace FirstWritingAPI
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+            builder.Services.AddScoped<IStudentService, StudentService>();
+
             var app = builder.Build();
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
             app.MapControllers();
-
             app.Run();
         }
     }
